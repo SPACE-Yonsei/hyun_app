@@ -75,18 +75,5 @@ typedef struct
     HYUN_APP_HkTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 } HYUN_APP_HkTlm_t;
 
-typedef struct
-{
-    uint8 CommandErrorCounter;
-    uint8 CommandCounter;
-    char TextData[10]; // 텍스트를 보내보자 한번
-    uint8 spare[2];
-} HYUN_APP_TUTORIAL_Payload_t;
-
-typedef struct
-{
-    CFE_MSG_TelemetryHeader_t  TlmHeader; /**< \brief Telemetry header */
-    HYUN_APP_TUTORIAL_Payload_t Payload;   /**< \brief Telemetry payload */
-} HYUN_APP_TUTORIAL_t;
 
 #endif /* HYUN_APP_MSG_H */

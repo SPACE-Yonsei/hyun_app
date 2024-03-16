@@ -41,6 +41,7 @@
 #include "hyun_app_perfids.h"
 #include "hyun_app_msgids.h"
 #include "hyun_app_msg.h"
+#include "libs/spacey.h"
 
 /***********************************************************************/
 #define HYUN_APP_PIPE_DEPTH 32 /* Depth of the Command Pipe for Application */
@@ -88,9 +89,14 @@ typedef struct
     HYUN_APP_TUTORIAL_t TutorialPacket;
 
     /*
+    rcvtest 앱에 String을 보내기 위해 정의한 Packet.
+    */
+    SPACEY_LIB_MSG_CHAR20_t Char20msgPacket;
+    /*
     Software Bus Pipe를 정의한다.
     */
     CFE_SB_PipeId_t HYUN_PIPE_1; /* Variable to hold Pipe ID (i.e.- Handle) */
+
 
     /*
     ** Run Status variable used in the main processing loop
@@ -133,7 +139,7 @@ int32 HYUN_APP_SB_TUTORIAL(void);
 App이 Initalization 될 때, app은 cFE에 자신이 쓸 pipe들을 알려줘야 한다.
 먼저 헤더 파일 (hyun_app.h)에 관련 변수들을 정의하자.
 */
-#define HYUN_PIPE_1_NAME   "HYUN_PIPE_1" //Pipe의 이름을 정의한다
+
 #define HYUN_PIPE_1_DEPTH  (10) //Pipe Depth는 한 Pipe에 얼마나 많은 message가 들어갈 수 있는지 정의한다
 #define HYUN_APP_TUTORIAL_LIMIT (10) //message limit은 특정 message ID를 가진 message가 한 pipe에 얼마나 들어갈 수 있는지를 정의한다.
 
@@ -154,5 +160,6 @@ int32 HYUN_APP_TEST_SB_RCV(void);
 int32 HYUN_APP_TEST_SB_SEND(void);
 int32 HYUN_APP_TEST_SB_INIT(void);
 
+int32 HYUN_APP_SEND_CHAR20_TO_RCVTEST(void);
 
 #endif /* HYUN_APP_H */

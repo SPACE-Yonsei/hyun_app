@@ -69,7 +69,7 @@ main 함수를 제외한 함수들은 int32 형식으로 선언하고, 성공적
 HYUN_APP_Data_t HYUN_APP_Data;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * *  * * * * **/
-/* HYUN_APP_Main() -- Application entry point and main process loop         */
+/* HYUN_APP_Main() -- Application entry point and main process loop           */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * *  * * * * **/
 void HYUN_APP_Main(void)
@@ -248,17 +248,16 @@ int32 HYUN_APP_SB_TUTORIAL(void)
     Message를 만들었으니 이제 보내자!
     이 Message가 보내진 시간을 삽입하기 위해 우리는 CFE_SB_TimeStampMsg를 사용할거다.
     */
-    HYUN_APP_Data.TutorialPacket.Payload.CommandErrorCounter = HYUN_APP_Data.ErrCounter;
-    HYUN_APP_Data.TutorialPacket.Payload.CommandCounter = HYUN_APP_Data.CmdCounter;
+    strncpy(HYUN_APP_Data.TutorialPacket.Payload.TextData, "Hello World\n", 20);
     // 보낼 메세지의 CmdCounter, Error Counter 설정
-
+    
     CFE_SB_TimeStampMsg(&HYUN_APP_Data.TutorialPacket.TlmHeader.Msg); // Message에 현재 시간 넣기
     CFE_SB_TransmitMsg(&HYUN_APP_Data.TutorialPacket.TlmHeader.Msg, true);
     /*
     CFE_SB_TransmitMsg는 메세지를 보내는 역할을 하고, 다음과 같은 값이 들어간다.
     (Message Header의 주소, IsOrigination 값(Documentation 참조, 일단 true를 쓰자))
     */
-
+   
     /*
     메세지를 보냈으니 받아보자
     CFE_SB_ReceiveBuffer는 다음과 같은 값이 들어간다.
@@ -276,7 +275,7 @@ int32 HYUN_APP_SB_TUTORIAL(void)
     {
         HYUN_APP_ProcessCommandPacket(SBBufPtr);
         //printf("TUTORIAL MSG RCV\n");
-    }
+    }    
     return CFE_SUCCESS;
 }
 
@@ -306,9 +305,9 @@ int32 HYUN_APP_TEST_SB_INIT(void)
 
 int32 HYUN_APP_TEST_SB_SEND(void)
 {
-    HYUN_APP_Data.TutorialPacket.Payload.CommandErrorCounter = HYUN_APP_Data.ErrCounter;
-    HYUN_APP_Data.TutorialPacket.Payload.CommandCounter = HYUN_APP_Data.CmdCounter;
-    // 보낼 메세지의 CmdCounter, Error Counter 설정
+    strncpy(HYUN_APP_Data.TutorialPacket.Payload.TextData, "Hello World\n", 20);
+
+    // 보낼 메세지의 CmdCounter, Error Counter, Text Data 설정
 
     CFE_SB_TimeStampMsg(&HYUN_APP_Data.TutorialPacket.TlmHeader.Msg); // Message에 현재 시간 넣기
     CFE_SB_TransmitMsg(&HYUN_APP_Data.TutorialPacket.TlmHeader.Msg, true);
@@ -332,6 +331,19 @@ int32 HYUN_APP_TEST_SB_RCV(void)
     return CFE_SUCCESS;
 }
 
+int32 HYUN_APP_SEND_CHAR20_TO_RCVTEST(void)
+{
+    strncpy(HYUN_APP_Data.Char20msgPacket.Payload.TextData, "Hello World\n", 20);
+    // 보낼 메세지의 CmdCounter, Error Counter 설정
+    
+    CFE_SB_TimeStampMsg(&HYUN_APP_Data.Char20msgPacket.TlmHeader.Msg); // Message에 현재 시간 넣기
+    HYUN_APP_Data.Char20msgPacket.Payload.CommandErrorCounter = HYUN_APP_Data.ErrCounter;
+    HYUN_APP_Data.Char20msgPacket.Payload.CommandCounter      = HYUN_APP_Data.CmdCounter;
+
+    CFE_SB_TransmitMsg(&HYUN_APP_Data.Char20msgPacket.TlmHeader.Msg, true);
+    printf("Send Msg To Rcvtest App\n");
+    return CFE_SUCCESS;
+}
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
 /*                                                                            */
 /* HYUN_APP_Init() --  initialization                                       */
@@ -386,6 +398,9 @@ int32 HYUN_APP_Init(void)
         return (status);
     }
 
+    /*
+    ** Initialize Packets
+    */
 
     /*
     ** Initialize test packet (clear user data area).
@@ -396,7 +411,7 @@ int32 HYUN_APP_Init(void)
         printf("test sb init done!\n");
     }
         else{
-        printf("msg init not successful. Status = %ls", &status);
+        printf("msg init not successful. Status = %ls \n", &status);
     }
     
 
@@ -404,6 +419,12 @@ int32 HYUN_APP_Init(void)
     ** Initialize housekeeping packet (clear user data area).
     */
     CFE_MSG_Init(&HYUN_APP_Data.HkTlm.TlmHeader.Msg, HYUN_APP_MID_HOUSEKEEPING_RES, sizeof(HYUN_APP_Data.HkTlm));
+
+    /*
+    ** Initialize " Char20msgPacket " 
+    */
+    CFE_MSG_Init(&HYUN_APP_Data.Char20msgPacket.TlmHeader.Msg, HYUN_APP_MID_SENDTORCVTEST_RES, sizeof(HYUN_APP_Data.Char20msgPacket));
+
 
     /*
     ** Create Software Bus message pipe.
@@ -482,6 +503,7 @@ void HYUN_APP_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr)
             break;
 
         case SPACEY_MID_HOUSEKEEPING_REQ:
+            printf("report housekeeping!");
             HYUN_APP_ReportHousekeeping((CFE_MSG_CommandHeader_t *)SBBufPtr);
             break;
 
@@ -584,7 +606,8 @@ int32 HYUN_APP_ReportHousekeeping(const CFE_MSG_CommandHeader_t *Msg)
     /*
     for test. delete later
     */
-    HYUN_APP_TEST_SB_SEND();
+    HYUN_APP_SEND_CHAR20_TO_RCVTEST();
+
     //HYUN_APP_TEST_SB_RCV();
 
     return CFE_SUCCESS;
