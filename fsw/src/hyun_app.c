@@ -305,7 +305,7 @@ int32 HYUN_APP_TEST_SB_INIT(void)
 
 int32 HYUN_APP_TEST_SB_SEND(void)
 {
-    strncpy(HYUN_APP_Data.TutorialPacket.Payload.TextData, "Hello World\n", 20);
+    strncpy(HYUN_APP_Data.TutorialPacket.Payload.TextData, "Hello world!\n", sizeof(HYUN_APP_Data.TutorialPacket.Payload.TextData));
 
     // 보낼 메세지의 CmdCounter, Error Counter, Text Data 설정
 
@@ -333,7 +333,7 @@ int32 HYUN_APP_TEST_SB_RCV(void)
 
 int32 HYUN_APP_SEND_CHAR20_TO_RCVTEST(void)
 {
-    strncpy(HYUN_APP_Data.Char20msgPacket.Payload.TextData, "Hello World\n", 20);
+    strncpy(HYUN_APP_Data.Char20msgPacket.Payload.TextData, "Hello World!\n", sizeof(HYUN_APP_Data.Char20msgPacket.Payload.TextData));
     // 보낼 메세지의 CmdCounter, Error Counter 설정
     
     CFE_SB_TimeStampMsg(&HYUN_APP_Data.Char20msgPacket.TlmHeader.Msg); // Message에 현재 시간 넣기
