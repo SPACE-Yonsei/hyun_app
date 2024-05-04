@@ -295,9 +295,6 @@ int32 HYUN_APP_TEST_SB_INIT(void)
     if (Status == CFE_SUCCESS){
         printf("SUBSCRIBE SUCCESS\n");    
     }
-    else{
-        printf("subscribe not successful. Status = %ls", &Status);
-    }
 
     //status = CFE_SB_Subscribe(HYUN_APP_SEND_HK_MID, HYUN_APP_Data.CommandPipe);
     return CFE_SUCCESS;
@@ -409,9 +406,7 @@ int32 HYUN_APP_Init(void)
     if (status == CFE_SUCCESS){
         printf("test sb init done!\n");
     }
-        else{
-        printf("msg init not successful. Status = %ls \n", &status);
-    }
+
     
 
     /*
