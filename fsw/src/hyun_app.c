@@ -341,7 +341,6 @@ int32 HYUN_APP_SEND_CHAR20_TO_RCVTEST(void)
     HYUN_APP_Data.Char20msgPacket.Payload.CommandCounter      = HYUN_APP_Data.CmdCounter;
 
     CFE_SB_TransmitMsg(&HYUN_APP_Data.Char20msgPacket.TlmHeader.Msg, true);
-    printf("Send Msg To Rcvtest App\n");
     return CFE_SUCCESS;
 }
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  */
@@ -439,7 +438,7 @@ int32 HYUN_APP_Init(void)
     /*
     ** Subscribe to Housekeeping request commands
     */
-    status = CFE_SB_Subscribe(SPACEY_MID_HOUSEKEEPING_REQ, HYUN_APP_Data.CommandPipe);
+    status = CFE_SB_Subscribe(HYUN_APP_MID_HOUSEKEEPING_REQ, HYUN_APP_Data.CommandPipe);
     if (status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("Hyun_app: Error Subscribing to HK request, RC = 0x%08lX\n", (unsigned long)status);
@@ -449,7 +448,7 @@ int32 HYUN_APP_Init(void)
     /*
     ** Subscribe to ground command packets
     */
-    status = CFE_SB_Subscribe(HYUN_APP_CMD_MID, HYUN_APP_Data.CommandPipe);
+    status = CFE_SB_Subscribe(HYUN_APP_MID_GROUNDCMD_REQ, HYUN_APP_Data.CommandPipe);
     if (status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("Hyun_app: Error Subscribing to Command, RC = 0x%08lX\n", (unsigned long)status);
@@ -494,16 +493,15 @@ void HYUN_APP_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr)
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
 
     CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MsgId);
-    printf("hyun app process MID = 0x%x\n", (unsigned int)CFE_SB_MsgIdToValue(MsgId));
+    //printf("hyun app process MID = 0x%x\n", (unsigned int)CFE_SB_MsgIdToValue(MsgId));
 
     switch (MsgId)
     {
-        case HYUN_APP_CMD_MID:
+        case HYUN_APP_MID_GROUNDCMD_REQ:
             HYUN_APP_ProcessGroundCommand(SBBufPtr);
             break;
 
-        case SPACEY_MID_HOUSEKEEPING_REQ:
-            printf("report housekeeping!");
+        case HYUN_APP_MID_HOUSEKEEPING_REQ:
             HYUN_APP_ReportHousekeeping((CFE_MSG_CommandHeader_t *)SBBufPtr);
             break;
 
@@ -624,8 +622,7 @@ int32 HYUN_APP_Noop(const HYUN_APP_NoopCmd_t *Msg)
     //printf("hyun app noop\n");
     HYUN_APP_Data.CmdCounter++;
 
-    CFE_EVS_SendEvent(HYUN_APP_COMMANDNOP_INF_EID, CFE_EVS_EventType_INFORMATION, "SAMPLE: NOOP command %s",
-                      HYUN_APP_VERSION);
+    //CFE_EVS_SendEvent(HYUN_APP_COMMANDNOP_INF_EID, CFE_EVS_EventType_INFORMATION, "SAMPLE: NOOP command %s",HYUN_APP_VERSION);
 
     return CFE_SUCCESS;
 
